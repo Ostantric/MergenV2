@@ -155,7 +155,7 @@ include_directories(
 ## Install ##
 #############
 add_executable(teleop_joystick src/teleop_joystick.cpp)
-add_executable(xbox_light src/xbox_lights.cpp)
+add_executable(xbox_light src/xbox_light.cpp)
 target_link_libraries(teleop_joystick ${catkin_LIBRARIES})
 target_link_libraries(xbox_light ${catkin_LIBRARIES})
 # all install targets should use catkin DESTINATION variables

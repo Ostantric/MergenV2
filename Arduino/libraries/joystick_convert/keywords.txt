@@ -1,0 +1,6 @@
+# Syntax Coloring for the Sabertooth Library
+
+# Classes
+JoystickToMove	KEYWORD1
+# Methods
+4wheel_convert	KEYWORD2

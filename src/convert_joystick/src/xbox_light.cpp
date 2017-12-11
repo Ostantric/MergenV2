@@ -11,7 +11,7 @@ void LightCallback(const std_msgs::Bool msg)
     if (msg.data==true)
     {
         std::system("echo 13 > /sys/class/leds/xpad0/brightness");
-        ROS_INFO("running");
+        ROS_INFO("moving");
     }
     else
     {
