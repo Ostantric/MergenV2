@@ -14,6 +14,14 @@
 #include <Sabertooth.h>
 #define HWS1 Serial1
 #define HWS2 Serial2
+#define clutch1_r 9
+#define clutch1_l 8
+#define clutch2_r 7
+#define clutch2_l 8
+#define clutch3_r 5
+#define clutch3_l 4
+#define clutch4_r 3
+#define clutch4_l 2
 
 ros::NodeHandle nh;
 std_msgs::Float32 msg_flt;
@@ -21,7 +29,7 @@ std_msgs::String str_msg;
 ros::Publisher pub("arduino", &msg_flt);
 ros::Publisher hi("arduino_str", &str_msg);
 Sabertooth ST1(128,HWS1);
-Sabertooth ST2(129,HWS2);
+Sabertooth ST2(128,HWS2);
 JoystickToMove joystick;
 void motor_drive( const geometry_msgs::Twist& msg)
 {
@@ -33,9 +41,31 @@ void motor_drive( const geometry_msgs::Twist& msg)
   angular=msg.angular.z;
   linear_converted=mapf(linear,-2.0,2.0,-127.0,127.0);
   angular_converted=mapf(angular,-2.0,2.0,-127.0,127.0);
-  motor1_send=joystick.motor_clock(linear_converted,angular_converted);
+  if(linear==0 && angular==0)
+  {
+    digitalWrite(clutch1_r,LOW);
+    digitalWrite(clutch1_l,LOW);
+    digitalWrite(clutch2_r,LOW);
+    digitalWrite(clutch2_l,LOW);
+    digitalWrite(clutch3_r,LOW);
+    digitalWrite(clutch3_l,LOW);
+    digitalWrite(clutch4_r,LOW);
+    digitalWrite(clutch4_l,LOW);
+  }
+  else
+  {
+    digitalWrite(clutch1_r,HIGH);
+    digitalWrite(clutch1_l,LOW);
+    digitalWrite(clutch2_r,HIGH);
+    digitalWrite(clutch2_l,LOW);
+    digitalWrite(clutch3_r,HIGH);
+    digitalWrite(clutch3_l,LOW);
+    digitalWrite(clutch4_r,HIGH);
+    digitalWrite(clutch4_l,LOW);
+  }
+  motor1_send=joystick.motor_counterclock(linear_converted,angular_converted);
   motor2_send=joystick.motor_clock(linear_converted,angular_converted);
-  motor3_send=joystick.motor_counterclock(linear_converted,angular_converted);
+  motor3_send=joystick.motor_clock(linear_converted,angular_converted);
   motor4_send=joystick.motor_counterclock(linear_converted,angular_converted);
   
   //Serial.println(state);
@@ -45,7 +75,8 @@ void motor_drive( const geometry_msgs::Twist& msg)
   
   ST1.motor(1,motor1_send);
   ST1.motor(2,motor2_send);
-
+  ST2.motor(1,motor3_send);
+  ST2.motor(2,motor4_send);
 
 }
 ros::Subscriber<geometry_msgs::Twist> sub("/cmd_vel", motor_drive);
@@ -66,11 +97,19 @@ void setup( void )
   HWS2.begin(9600);
   ST1.autobaud();
   ST2.autobaud();
+  pinMode(clutch1_r,OUTPUT);
+  pinMode(clutch1_l,OUTPUT);
+  pinMode(clutch2_r,OUTPUT);
+  pinMode(clutch2_l,OUTPUT);
+  pinMode(clutch3_r,OUTPUT);
+  pinMode(clutch3_l,OUTPUT);
+  pinMode(clutch4_r,OUTPUT);
+  pinMode(clutch4_l,OUTPUT);
   //Serial.begin(9600);
   /* Create the first task at priority 1... */
   xTaskCreate( vTaskFunction, "Task 1", 200, NULL, 2, NULL );
   xTaskCreate( vTaskSpin, "Spin Task", 200, NULL, 1, NULL);
-  /* ... and the second task at priority 2.  The priority is the second to
+  /* ... and the second task at priority 2.  The priority is the second to 
   last parameter. */
   //xTaskCreate( vTaskFunction, "Task 2", 200, NULL, 2, NULL );
 
