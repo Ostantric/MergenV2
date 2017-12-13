@@ -36,7 +36,7 @@ float JoystickToMove::motor_counterclock(float x, float z)
     }
     else if ((x==0) && ((z<0) || (z>0))) //left or right
     {
-        motor = -z;
+        motor = z;
     }
     else
     {
